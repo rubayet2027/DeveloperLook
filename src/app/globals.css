@@ -1,26 +1,149 @@
+/* ─── Tailwind v4 ────────────────────────────────────────────────────────── */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
+@theme {
+  /* Typography */
+  --font-sans: var(--font-dm-sans), "DM Sans", sans-serif;
+
+  /* Brand colours */
+  --color-grey-900:  #111212;
+  --color-grey-800:  #1a1a1a;
+  --color-grey-700:  #242424;
+  --color-grey-600:  #2d2d2d;
+  --color-grey-500:  #4a4a4a;
+  --color-grey-400:  #3a3a3a;
+  --color-grey-300:  #888888;
+  --color-grey-200:  #cccccc;
+  --color-grey-100:  #f0f0f0;
+  --color-mint:      #B2F6E3;
+  --color-mint-dark: #7ee8c8;
+  --color-orange:    #CB7B3A;
+  --color-blue:      #60DCFB;
+  --color-purple:    #D8C4FD;
+
+  /* Font sizes */
+  --text-1xs: 0.65rem;
+
+  /* Border radii */
+  --radius-4xl: 2rem;
+
+  /* Named animations — used as class `animate-marquee` etc. */
+  --animate-marquee:         marquee 28s linear infinite;
+  --animate-marquee-reverse: marqueeReverse 32s linear infinite;
+  --animate-marquee-slow:    marquee 45s linear infinite;
+  --animate-spin-slow:       spin 8s linear infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0%); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marqueeReverse {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0%); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base Reset ────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: #111212;
+  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ─── Custom scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar            { width: 4px; }
+::-webkit-scrollbar-track      { background: #111212; }
+::-webkit-scrollbar-thumb      { background: #B2F6E3; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover{ background: #7ee8c8; }
+
+/* ─── Text selection ────────────────────────────────────────────────────── */
+::selection { background: #B2F6E3; color: #111212; }
+
+/* ─── Utility: hide scrollbar but allow scroll ──────────────────────────── */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Utility: overflow-hidden on marquee parent ────────────────────────── */
+.marquee-wrap { overflow: hidden; }
+
+/* ─── Transition shorthand fix — use these classes instead of mixing
+       `transition` shorthand with `transitionDelay` inline style ────────── */
+.transition-fade {
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 700ms;
+}
+
+/* ─── Header entrance animation ─────────────────────────────────────────── */
+.word-reveal {
+  display: inline-block;
+  overflow: hidden;
+}
+.word-reveal__inner {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 700ms;
+}
+.word-reveal__inner.is-visible {
+  transform: translateY(0%);
+  opacity: 1;
+}
+
+/* ─── Char reveal (CTA section) ─────────────────────────────────────────── */
+.char-reveal {
+  display: inline-block;
+  transform: translateY(80px);
+  opacity: 0;
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+}
+.char-reveal.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ─── Button radius morph (via JS class or Tailwind hover:rounded-xl) ───── */
+/* Handled inline with Tailwind classes */
+
+/* ─── Footer nav vertical slide link ────────────────────────────────────── */
+.footer-link {
+  display: inline-flex;
+  overflow: hidden;
+  line-height: 1.4;
+}
+.footer-link__primary,
+.footer-link__clone {
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.footer-link__clone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(100%);
+}
+.footer-link:hover .footer-link__primary { transform: translateY(-100%); }
+.footer-link:hover .footer-link__clone   { transform: translateY(0%); }
