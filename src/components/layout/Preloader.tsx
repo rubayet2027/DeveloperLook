@@ -1,74 +1,83 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
 
 export default function Preloader({ onComplete }: { onComplete: () => void }) {
-  const [progress, setProgress] = useState(0)
-  const [exiting, setExiting] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const logoRef = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
+  const counterRef = useRef<HTMLSpanElement>(null)
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
-  const hasFinished = useRef(false)
+  const [counter, setCounter] = useState(0)
 
   useEffect(() => {
-    let frame: number
-    let startTime = 0
-    const duration = 1600
+    const tl = gsap.timeline({
+      onComplete: () => {
+        // Exit animation
+        gsap.to(containerRef.current, {
+          yPercent: -100,
+          duration: 0.8,
+          ease: 'power4.inOut',
+          onComplete: () => onCompleteRef.current(),
+        })
+      },
+    })
 
-    const finish = () => {
-      if (hasFinished.current) return
-      hasFinished.current = true
-      setProgress(100)
-      setTimeout(() => {
-        setExiting(true)
-        setTimeout(() => onCompleteRef.current(), 700)
-      }, 250)
-    }
+    // Logo scale + fade in
+    tl.from(logoRef.current, {
+      scale: 0.8,
+      opacity: 0,
+      duration: 0.6,
+      ease: 'power3.out',
+    })
 
-    const animate = (ts: number) => {
-      if (!startTime) startTime = ts
-      const elapsed = ts - startTime
-      const pct = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - pct, 3)
-      setProgress(eased * 100)
+    // Counter animation (0 → 100)
+    tl.to({ val: 0 }, {
+      val: 100,
+      duration: 1.6,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const v = Math.round(this.targets()[0].val)
+        setCounter(v)
+      },
+    }, '-=0.3')
 
-      if (pct < 1) {
-        frame = requestAnimationFrame(animate)
-      } else {
-        finish()
-      }
-    }
+    // Progress bar width
+    tl.to(barRef.current, {
+      width: '100%',
+      duration: 1.6,
+      ease: 'power2.inOut',
+    }, '<') // Same time as counter
 
-    frame = requestAnimationFrame(animate)
+    // Brief pause before exit
+    tl.to({}, { duration: 0.3 })
 
-    // Failsafe: if animation doesn't complete in 3s, force finish
-    const failsafe = setTimeout(finish, 3000)
+    // Failsafe
+    const failsafe = setTimeout(() => {
+      tl.kill()
+      gsap.to(containerRef.current, {
+        yPercent: -100,
+        duration: 0.6,
+        ease: 'power4.inOut',
+        onComplete: () => onCompleteRef.current(),
+      })
+    }, 4000)
 
     return () => {
-      cancelAnimationFrame(frame)
+      tl.kill()
       clearTimeout(failsafe)
     }
-  }, []) // No dependencies — uses ref for callback
+  }, [])
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#1a1a1a]"
-      style={exiting ? {
-        transform: 'translateY(-100%)',
-        transitionProperty: 'transform',
-        transitionDuration: '700ms',
-        transitionTimingFunction: 'cubic-bezier(0.76, 0, 0.24, 1)',
-      } : undefined}
+      ref={containerRef}
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#1a1a1a]"
     >
       {/* Logo */}
-      <div
-        style={{
-          opacity: progress > 5 ? 1 : 0,
-          transform: progress > 5 ? 'scale(1)' : 'scale(0.85)',
-          transitionProperty: 'opacity, transform',
-          transitionDuration: '500ms',
-          transitionTimingFunction: 'cubic-bezier(0.4,0,0.2,1)',
-        }}
-      >
+      <div ref={logoRef} className="mb-6">
         <svg className="h-8 w-auto fill-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 21">
           <path d="M91.3152 5.40061C91.3152 3.94241 92.5306 2.67359 93.9881 2.67359C95.7162 2.67359 96.797 3.83419 96.797 5.56225H99.7127C99.7127 2.1873 97.3096 0 93.9874 0C90.9371 0 88.3988 2.32257 88.3988 5.42766C88.3988 9.31596 90.883 10.2344 93.9874 11.4221C95.6627 12.07 97.2007 12.5563 97.2007 14.6895C97.2007 16.634 95.9867 18.0651 93.9874 18.0651C91.8813 18.0651 90.7477 16.3905 90.7477 14.446H87.832C87.832 18.0651 90.3426 20.7381 93.9874 20.7381C97.6323 20.7381 100.118 18.2816 100.118 14.6895C100.118 7.10161 91.3145 9.64061 91.3145 5.40061H91.3152Z"/>
           <path d="M109.209 4.99609C104.834 4.99609 101.539 8.53405 101.539 12.8539C101.539 17.1737 104.888 20.738 109.155 20.738C112.422 20.738 115.203 18.713 116.337 15.662H113.529C112.718 17.2278 111.017 18.1733 109.262 18.1733C106.806 18.1733 104.915 16.4182 104.348 14.0963H116.743C116.797 13.6371 116.823 13.1508 116.823 12.6922C116.823 8.47926 113.447 4.99609 109.209 4.99609ZM104.348 11.9361C104.509 9.47823 106.751 7.56147 109.181 7.56147C111.611 7.56147 113.853 9.47823 114.014 11.9361H104.348Z"/>
@@ -85,17 +94,15 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
         </svg>
       </div>
 
+      {/* Counter */}
+      <span ref={counterRef} className="text-white/40 text-sm font-medium tabular-nums">
+        {counter}%
+      </span>
+
       {/* Progress bar */}
-      <div
-        className="absolute bottom-0 left-0 h-[3px] rounded-sm"
-        style={{
-          width: `${progress}%`,
-          background: '#b8f0d8',
-          transitionProperty: 'width',
-          transitionDuration: '100ms',
-          transitionTimingFunction: 'linear',
-        }}
-      />
+      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-white/5">
+        <div ref={barRef} className="h-full bg-mint rounded-sm" style={{ width: 0 }} />
+      </div>
     </div>
   )
 }

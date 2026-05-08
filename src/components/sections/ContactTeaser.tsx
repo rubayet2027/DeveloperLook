@@ -1,79 +1,92 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
+import { motion } from 'framer-motion'
 
 export default function ContactTeaser() {
-  const [visible, setVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const marqueeRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setVisible(true) },
-      { threshold: 0.15 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
+  // GSAP horizontal marquee for background text
+  useGSAP(() => {
+    const track = marqueeRef.current
+    if (!track) return
+    const first = track.children[0] as HTMLElement
+    if (!first) return
+    const w = first.offsetWidth
+
+    gsap.to(track, {
+      x: -w,
+      duration: 40,
+      ease: 'none',
+      repeat: -1,
+      modifiers: {
+        x: gsap.utils.unitize((x: number) => parseFloat(String(x)) % w),
+      },
+    })
+  }, { scope: marqueeRef })
 
   return (
-    <section ref={ref} className="bg-site-bg py-20 lg:py-32 px-5 lg:px-10 overflow-hidden relative">
+    <section className="bg-site-bg py-20 lg:py-32 px-5 lg:px-10 overflow-hidden relative">
       {/* Background marquee text */}
-      <div className="absolute inset-0 flex items-center overflow-hidden pointer-events-none select-none">
-        <div className="flex animate-marquee-slow whitespace-nowrap opacity-[0.04]">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <span
-              key={i}
-              className="flex-shrink-0 mx-8 text-dark font-bold tracking-tight"
-              style={{ fontSize: 'clamp(6rem, 18vw, 16rem)' }}
-            >
-              Rise at Seven
-            </span>
+      <div className="absolute inset-0 flex items-center overflow-hidden pointer-events-none">
+        <div ref={marqueeRef} className="flex whitespace-nowrap">
+          {[0, 1, 2].map((set) => (
+            <div key={set} className="flex-shrink-0 flex items-center">
+              <span
+                className="mx-8 text-dark/[0.04] font-bold tracking-tight select-none"
+                style={{ fontSize: 'clamp(8rem, 20vw, 18rem)' }}
+              >
+                Rise at Seven
+              </span>
+            </div>
           ))}
         </div>
       </div>
 
-      <div
-        className="relative max-w-[1440px] mx-auto text-center"
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(40px)',
-          transitionProperty: 'opacity, transform',
-          transitionDuration: '800ms',
-          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
+      {/* Content */}
+      <motion.div
+        className="relative z-10 max-w-[1440px] mx-auto text-center"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.8, ease: [0.25, 0.1, 0, 1] as [number, number, number, number] }}
       >
         <h2
-          className="text-dark font-bold tracking-tight leading-[1.05] mb-8"
-          style={{ fontSize: 'clamp(2.8rem, 8vw, 7rem)' }}
+          className="text-dark font-bold tracking-tight leading-[1.0] mb-6"
+          style={{ fontSize: 'clamp(2.8rem, 8vw, 6rem)' }}
         >
-          Ready to Rise<br className="sm:hidden" /> at Seven?
+          Ready to Rise at Seven?
         </h2>
-
-        <p className="text-dark/50 text-base lg:text-lg font-light max-w-xl mx-auto mb-10">
+        <p className="text-dark/60 text-base sm:text-lg mb-10 max-w-xl mx-auto">
           Let&apos;s build a strategy that drives real, measurable growth for your brand.
         </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
+        <div className="flex items-center justify-center gap-4 flex-wrap">
+          <motion.a
             href="/contact"
-            className="group inline-flex items-center gap-2.5 bg-dark text-white font-bold text-base px-8 py-4 rounded-full hover:rounded-lg hover:bg-mint hover:text-dark transition-all duration-300"
+            className="group inline-flex items-center gap-2 bg-dark text-white font-semibold text-sm px-8 py-4 rounded-full hover:rounded-lg transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Get In Touch
-            <svg className="w-4 h-4 group-hover:rotate-45 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
             </svg>
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href="/work"
-            className="group inline-flex items-center gap-2.5 bg-white text-dark font-semibold text-base px-8 py-4 rounded-full border border-grey-200 hover:rounded-lg hover:bg-dark hover:text-white hover:border-dark transition-all duration-300"
+            className="group inline-flex items-center gap-2 bg-white text-dark font-semibold text-sm px-8 py-4 rounded-full border border-grey-200 hover:rounded-lg hover:bg-dark hover:text-white hover:border-dark transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Explore Our Work
-            <svg className="w-4 h-4 group-hover:rotate-45 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
             </svg>
-          </a>
+          </motion.a>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }

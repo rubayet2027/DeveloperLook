@@ -1,18 +1,43 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
+import { motion } from 'framer-motion'
+
+gsap.registerPlugin()
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
+}
+const ease = [0.25, 0.1, 0, 1] as [number, number, number, number]
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease } },
+}
 
 export default function HeroSection() {
-  const [visible, setVisible] = useState(false)
+  const heroRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 300)
-    return () => clearTimeout(t)
-  }, [])
+  // GSAP character-reveal on headline
+  useGSAP(() => {
+    const chars = heroRef.current?.querySelectorAll('.hero-char')
+    if (!chars) return
+
+    gsap.from(chars, {
+      yPercent: 120,
+      opacity: 0,
+      duration: 0.9,
+      ease: 'power4.out',
+      stagger: 0.03,
+      delay: 0.5,
+    })
+  }, { scope: heroRef })
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center bg-dark overflow-hidden">
-      {/* Blurred background video/image */}
+    <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center bg-dark overflow-hidden">
+      {/* Blurred background */}
       <div className="absolute inset-0 z-0">
         <img
           src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=2500&h=1667&q=80&auto=format&fit=crop"
@@ -24,25 +49,18 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-5 max-w-[1200px] mx-auto pt-32 pb-20">
-
-        {/* Awards row */}
-        <div
-          className="mb-8"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(20px)',
-            transitionProperty: 'opacity, transform',
-            transitionDuration: '800ms',
-            transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            transitionDelay: '200ms',
-          }}
-        >
+      <motion.div
+        className="relative z-10 text-center px-5 max-w-[1200px] mx-auto pt-32 pb-20"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {/* Awards */}
+        <motion.div variants={fadeUp} className="mb-8">
           <p className="text-white/60 text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] mb-4">
-            #1 Most Recommended<br className="sm:hidden" /> Content Marketing Agency
+            #1 Most Recommended Content Marketing Agency
           </p>
           <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
-            {/* Award laurel icons */}
             {['Global Search Awards', 'The Drum', 'UK Social Media Awards', 'Content Awards'].map((award) => (
               <div key={award} className="flex items-center gap-1.5 opacity-50">
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z"/></svg>
@@ -50,73 +68,56 @@ export default function HeroSection() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Main headline */}
+        {/* Main headline — GSAP character reveal */}
         <div className="mb-6">
-          {['We Create', 'Category    Leaders'].map((line, li) => (
-            <div key={li} className="overflow-hidden">
+          {['We Create', 'Category Leaders'].map((line, li) => (
+            <div key={li} className="overflow-hidden whitespace-nowrap">
               <h1
                 className="font-bold text-white tracking-tight leading-[0.95]"
-                style={{
-                  fontSize: 'clamp(3rem, 10vw, 8.5rem)',
-                  transform: visible ? 'translateY(0)' : 'translateY(110%)',
-                  opacity: visible ? 1 : 0,
-                  transitionProperty: 'transform, opacity',
-                  transitionDuration: '800ms',
-                  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-                  transitionDelay: `${400 + li * 150}ms`,
-                }}
+                style={{ fontSize: 'clamp(3rem, 10vw, 8.5rem)' }}
               >
-                {line.includes('Category') ? (
+                {line === 'Category Leaders' ? (
                   <>
-                    Category
-                    {/* Inline media thumbnail */}
-                    <span
-                      className="inline-block align-middle mx-2 sm:mx-4 rounded-xl overflow-hidden"
-                      style={{
-                        width: 'clamp(40px, 6vw, 90px)',
-                        height: 'clamp(40px, 6vw, 90px)',
-                      }}
-                    >
-                      <img
-                        src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=200&q=80&auto=format&fit=crop"
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
+                    {'Category'.split('').map((c, i) => (
+                      <span key={i} className="hero-char inline-block">{c}</span>
+                    ))}
+                    <span className="inline-block align-middle mx-2 sm:mx-4 rounded-xl overflow-hidden hero-char"
+                      style={{ width: 'clamp(40px, 6vw, 90px)', height: 'clamp(40px, 6vw, 90px)' }}>
+                      <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=200&q=80&auto=format&fit=crop"
+                        alt="" className="w-full h-full object-cover" />
                     </span>
-                    Leaders
+                    {' '}
+                    {'Leaders'.split('').map((c, i) => (
+                      <span key={`l${i}`} className="hero-char inline-block">{c}</span>
+                    ))}
                   </>
-                ) : line}
+                ) : (
+                  line.split('').map((c, i) => (
+                    <span key={i} className="hero-char inline-block">{c === ' ' ? '\u00A0' : c}</span>
+                  ))
+                )}
               </h1>
             </div>
           ))}
         </div>
 
         {/* Subtitle */}
-        <p
+        <motion.p
+          variants={fadeUp}
           className="text-white/70 text-base sm:text-lg lg:text-xl font-light italic tracking-wide"
-          style={{
-            opacity: visible ? 1 : 0,
-            transitionProperty: 'opacity',
-            transitionDuration: '800ms',
-            transitionDelay: '900ms',
-          }}
         >
           on every searchable platform
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
       {/* Bottom bar */}
-      <div
+      <motion.div
         className="relative z-10 w-full px-5 lg:px-10 pb-8 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 max-w-[1440px] mx-auto"
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(20px)',
-          transitionProperty: 'opacity, transform',
-          transitionDuration: '700ms',
-          transitionDelay: '1100ms',
-        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 1.2, ease }}
       >
         <p className="text-white/50 text-xs sm:text-sm font-light leading-relaxed max-w-md">
           Organic media planners creating, distributing &amp; optimising
@@ -126,7 +127,7 @@ export default function HeroSection() {
           <span className="font-bold">4 Global Offices</span> serving<br/>
           UK, USA (New York) &amp; EU
         </p>
-      </div>
+      </motion.div>
     </section>
   )
 }

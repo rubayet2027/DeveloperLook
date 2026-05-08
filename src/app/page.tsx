@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import SmoothScroll from '@/components/providers/SmoothScroll'
 import Preloader from '@/components/layout/Preloader'
 import Header from '@/components/layout/Header'
 import HeroSection from '@/components/sections/HeroSection'
@@ -23,27 +24,29 @@ export default function Home() {
   return (
     <>
       {!loaded && <Preloader onComplete={handleLoadComplete} />}
-      <div
-        style={{
-          opacity: loaded ? 1 : 0,
-          transitionProperty: 'opacity',
-          transitionDuration: '600ms',
-          transitionDelay: '100ms',
-        }}
-      >
-        <Header />
-        <main>
-          <HeroSection />
-          <ClientsMarquee />
-          <IntroSection />
-          <FeaturedWork />
-          <ServicesSection />
-          <StackingCards />
-          <WhatsNew />
-          <ContactTeaser />
-        </main>
-        <Footer />
-      </div>
+      <SmoothScroll>
+        <div
+          style={{
+            opacity: loaded ? 1 : 0,
+            transitionProperty: 'opacity',
+            transitionDuration: '600ms',
+            transitionDelay: '100ms',
+          }}
+        >
+          <Header />
+          <main>
+            <HeroSection />
+            <ClientsMarquee />
+            <IntroSection />
+            <FeaturedWork />
+            <ServicesSection />
+            <StackingCards />
+            <WhatsNew />
+            <ContactTeaser />
+          </main>
+          <Footer />
+        </div>
+      </SmoothScroll>
     </>
   )
 }
