@@ -4,79 +4,84 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function IntroSection() {
   const [visible, setVisible] = useState(false)
-  const sectionRef = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      ([e]) => { if (e.isIntersecting) setVisible(true) },
       { threshold: 0.15 }
     )
-    if (sectionRef.current) observer.observe(sectionRef.current)
+    if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-white py-20 lg:py-32 px-4 md:px-6 lg:px-8">
-      <div className="max-w-[1440px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+    <section ref={ref} className="bg-site-bg py-20 lg:py-32 px-5 lg:px-10">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-start">
 
-          {/* Left: Label */}
-          <div className="lg:col-span-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-grey-200 px-4 py-2 text-sm font-medium text-grey-300">
-              <span className="w-2 h-2 rounded-full bg-mint flex-shrink-0" />
-              What we do
-            </div>
-          </div>
+        {/* Left: body text */}
+        <div
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(30px)',
+            transitionProperty: 'opacity, transform',
+            transitionDuration: '800ms',
+            transitionTimingFunction: 'cubic-bezier(0.4,0,0.2,1)',
+          }}
+        >
+          <p className="text-dark/70 text-base sm:text-lg lg:text-xl font-light leading-relaxed max-w-lg">
+            A global team of search-first content marketers engineering semantic
+            relevancy &amp; category signals for both the internet and people
+          </p>
+        </div>
 
-          {/* Right: Copy */}
-          <div
-            className="lg:col-span-9"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? 'translateY(0)' : 'translateY(32px)',
-              transitionProperty: 'opacity, transform',
-              transitionDuration: '900ms',
-              transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
+        {/* Right: headline + CTAs */}
+        <div
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(30px)',
+            transitionProperty: 'opacity, transform',
+            transitionDuration: '800ms',
+            transitionTimingFunction: 'cubic-bezier(0.4,0,0.2,1)',
+            transitionDelay: '150ms',
+          }}
+        >
+          <h2
+            className="text-dark font-bold tracking-tight leading-[1.05] mb-8"
+            style={{ fontSize: 'clamp(2.4rem, 5.5vw, 4.5rem)' }}
           >
-            <p className="text-grey-900 text-2xl md:text-3xl lg:text-4xl xl:text-[2.8rem] font-medium leading-tight tracking-tight mb-8">
-              We&apos;re a{' '}
-              <span className="text-grey-300">search-first creative agency</span>{' '}
-              that drives demand, captures it, and converts it into{' '}
-              <span className="relative inline-block">
-                revenue
-                <svg className="absolute -bottom-1.5 left-0 w-full h-2" viewBox="0 0 200 8" fill="none">
-                  <path d="M2 6C50 2 150 2 198 6" stroke="#B2F6E3" strokeWidth="3" strokeLinecap="round"/>
-                </svg>
+            Driving Demand &amp;{' '}
+            <span className="relative inline-flex items-baseline gap-2">
+              Discovery
+              <span className="inline-block w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] rounded-lg overflow-hidden align-middle flex-shrink-0">
+                <img
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200&h=200&q=80&auto=format&fit=crop"
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               </span>
-              {' '}for the world&apos;s most ambitious brands.
-            </p>
+            </span>
+          </h2>
 
-            <p className="text-grey-300 text-base lg:text-lg leading-relaxed font-light mb-10 max-w-2xl">
-              From Digital PR and SEO to Organic Social and Influencer, we build integrated
-              search strategies that make brands impossible to ignore.
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <a
-                href="/about"
-                className="group inline-flex items-center gap-2 bg-grey-900 text-white font-semibold px-6 py-3 rounded-full hover:rounded-xl hover:bg-mint hover:text-grey-900 transition-all duration-300 text-sm"
-              >
-                Our story
-                <svg className="w-3.5 h-3.5 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </a>
-              <a
-                href="/services"
-                className="group inline-flex items-center gap-2 border border-grey-200 text-grey-900 font-medium px-6 py-3 rounded-full hover:rounded-xl hover:border-grey-900 transition-all duration-300 text-sm"
-              >
-                Our services
-                <svg className="w-3.5 h-3.5 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </a>
-            </div>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href="/about"
+              className="group inline-flex items-center gap-2 bg-white text-dark font-semibold text-sm px-6 py-3 rounded-full border border-grey-200 hover:rounded-lg hover:bg-dark hover:text-white hover:border-dark transition-all duration-300"
+            >
+              Our Story
+              <svg className="w-3 h-3 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
+              </svg>
+            </a>
+            <a
+              href="/services"
+              className="group inline-flex items-center gap-2 text-dark font-semibold text-sm px-6 py-3 hover:opacity-70 transition-opacity duration-200"
+            >
+              Our Services
+              <svg className="w-3 h-3 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
+              </svg>
+            </a>
           </div>
         </div>
       </div>

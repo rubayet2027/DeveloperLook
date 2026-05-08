@@ -1,149 +1,111 @@
-/* ─── Tailwind v4 ────────────────────────────────────────────────────────── */
 @import "tailwindcss";
 
-/* ─── Design Tokens ─────────────────────────────────────────────────────── */
 @theme {
-  /* Typography */
-  --font-sans: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
 
-  /* Brand colours */
-  --color-grey-900:  #111212;
-  --color-grey-800:  #1a1a1a;
-  --color-grey-700:  #242424;
-  --color-grey-600:  #2d2d2d;
-  --color-grey-500:  #4a4a4a;
-  --color-grey-400:  #3a3a3a;
-  --color-grey-300:  #888888;
-  --color-grey-200:  #cccccc;
-  --color-grey-100:  #f0f0f0;
-  --color-mint:      #B2F6E3;
+  --color-site-bg: #efeeec;
+  --color-dark: #1a1a1a;
+  --color-dark-card: #1e1e1e;
+  --color-grey-900: #111212;
+  --color-grey-800: #1a1a1a;
+  --color-grey-700: #2a2a2a;
+  --color-grey-600: #3a3a3a;
+  --color-grey-500: #555;
+  --color-grey-400: #777;
+  --color-grey-300: #999;
+  --color-grey-200: #ccc;
+  --color-grey-100: #e8e7e5;
+  --color-mint: #b8f0d8;
   --color-mint-dark: #7ee8c8;
-  --color-orange:    #CB7B3A;
-  --color-blue:      #60DCFB;
-  --color-purple:    #D8C4FD;
+  --color-orange: #e8a065;
+  --color-blue: #7ec8f0;
+  --color-purple: #c8a8f0;
 
-  /* Font sizes */
-  --text-1xs: 0.65rem;
-
-  /* Border radii */
-  --radius-4xl: 2rem;
-
-  /* Named animations — used as class `animate-marquee` etc. */
-  --animate-marquee:         marquee 28s linear infinite;
-  --animate-marquee-reverse: marqueeReverse 32s linear infinite;
-  --animate-marquee-slow:    marquee 45s linear infinite;
-  --animate-spin-slow:       spin 8s linear infinite;
+  --animate-marquee: marquee 35s linear infinite;
+  --animate-marquee-reverse: marqueeReverse 35s linear infinite;
+  --animate-marquee-fast: marquee 20s linear infinite;
+  --animate-marquee-slow: marquee 55s linear infinite;
 }
 
-/* ─── Keyframes ──────────────────────────────────────────────────────────── */
 @keyframes marquee {
-  from { transform: translateX(0%); }
+  from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 @keyframes marqueeReverse {
   from { transform: translateX(-50%); }
-  to   { transform: translateX(0%); }
+  to   { transform: translateX(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes preloaderSlideUp {
+  to { transform: translateY(-100%); }
 }
 
-/* ─── Base Reset ────────────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
 body {
-  background: #ffffff;
-  color: #111212;
-  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
+  background: var(--color-site-bg);
+  color: #1a1a1a;
+  font-family: var(--font-sans);
   overflow-x: hidden;
   min-height: 100vh;
 }
 
-img {
-  max-width: 100%;
-  display: block;
-}
+img { max-width: 100%; display: block; }
 
-/* ─── Custom scrollbar ──────────────────────────────────────────────────── */
-::-webkit-scrollbar            { width: 4px; }
-::-webkit-scrollbar-track      { background: #111212; }
-::-webkit-scrollbar-thumb      { background: #B2F6E3; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover{ background: #7ee8c8; }
+::selection { background: #b8f0d8; color: #1a1a1a; }
 
-/* ─── Text selection ────────────────────────────────────────────────────── */
-::selection { background: #B2F6E3; color: #111212; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #b8f0d8; border-radius: 4px; }
 
-/* ─── Utility: hide scrollbar but allow scroll ──────────────────────────── */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* ─── Utility: overflow-hidden on marquee parent ────────────────────────── */
-.marquee-wrap { overflow: hidden; }
-
-/* ─── Transition shorthand fix — use these classes instead of mixing
-       `transition` shorthand with `transitionDelay` inline style ────────── */
-.transition-fade {
-  transition-property: opacity, transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 700ms;
+/* Blur mask for marquee edges */
+.blur-edge-mask {
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 
-/* ─── Header entrance animation ─────────────────────────────────────────── */
-.word-reveal {
-  display: inline-block;
-  overflow: hidden;
+/* Preloader */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
 }
-.word-reveal__inner {
-  display: inline-block;
-  transform: translateY(110%);
+.preloader.exit {
+  animation: preloaderSlideUp 0.8s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+.preloader__logo {
   opacity: 0;
-  transition-property: transform, opacity;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 700ms;
+  transform: scale(0.85);
+  animation: scaleIn 0.6s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
 }
-.word-reveal__inner.is-visible {
-  transform: translateY(0%);
-  opacity: 1;
-}
-
-/* ─── Char reveal (CTA section) ─────────────────────────────────────────── */
-.char-reveal {
-  display: inline-block;
-  transform: translateY(80px);
-  opacity: 0;
-  transition-property: transform, opacity;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 500ms;
-}
-.char-reveal.is-visible {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-/* ─── Button radius morph (via JS class or Tailwind hover:rounded-xl) ───── */
-/* Handled inline with Tailwind classes */
-
-/* ─── Footer nav vertical slide link ────────────────────────────────────── */
-.footer-link {
-  display: inline-flex;
-  overflow: hidden;
-  line-height: 1.4;
-}
-.footer-link__primary,
-.footer-link__clone {
-  display: block;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.footer-link__clone {
+.preloader__bar {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
-  transform: translateY(100%);
+  height: 3px;
+  background: #b8f0d8;
+  border-radius: 2px;
 }
-.footer-link:hover .footer-link__primary { transform: translateY(-100%); }
-.footer-link:hover .footer-link__clone   { transform: translateY(0%); }

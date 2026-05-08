@@ -1,45 +1,21 @@
 'use client'
 
 const clients = [
-  'SIXT', 'Dojo', 'Magnet Trade', 'PrettyLittleThing', 'JD Sports',
-  'New Look', 'Boohoo', 'Very', 'Moonpig', 'Currys', 'Costa Coffee',
-  'Wickes', 'Ronseal', 'Air France', 'Thomas Cook', 'TUI',
+  'JD Sports', 'Kroger', 'HubSpot', 'XBOX', 'Red Bull',
+  'SIXT', 'Emirates', 'Dojo', 'Magnet', 'PrettyLittleThing',
 ]
 
 export default function ClientsMarquee() {
   return (
-    <section className="w-full bg-grey-100 py-10 overflow-hidden border-y border-grey-200">
-      <div className="text-center mb-6 px-4">
-        <p className="text-grey-300 text-sm font-medium tracking-widest uppercase">
-          Trusted by world-class brands
-        </p>
-      </div>
-
-      {/* Row 1 - left */}
-      <div className="relative mb-4">
-        <div className="flex animate-[marquee_30s_linear_infinite] whitespace-nowrap">
-          {[...clients, ...clients].map((client, i) => (
+    <section className="bg-site-bg py-10 lg:py-14 overflow-hidden">
+      <div className="blur-edge-mask">
+        <div className="flex items-center animate-marquee whitespace-nowrap">
+          {[...clients, ...clients, ...clients, ...clients].map((client, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-4 px-8 text-grey-900 font-semibold text-lg lg:text-xl whitespace-nowrap flex-shrink-0"
+              className="flex-shrink-0 mx-8 sm:mx-12 lg:mx-16 text-dark/30 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight select-none"
             >
               {client}
-              <span className="w-1.5 h-1.5 rounded-full bg-mint flex-shrink-0" />
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Row 2 - right */}
-      <div className="relative">
-        <div className="flex animate-[marqueeReverse_35s_linear_infinite] whitespace-nowrap">
-          {[...clients.slice().reverse(), ...clients.slice().reverse()].map((client, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center gap-4 px-8 text-grey-300 font-medium text-base lg:text-lg whitespace-nowrap flex-shrink-0"
-            >
-              {client}
-              <span className="w-1 h-1 rounded-full bg-grey-200 flex-shrink-0" />
             </span>
           ))}
         </div>

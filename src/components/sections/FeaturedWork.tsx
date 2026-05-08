@@ -1,177 +1,156 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const projects = [
   {
-    id: 1,
-    client: 'SIXT',
-    category: 'SEO + Digital PR',
-    result: '+312% organic traffic',
-    description: 'Drove massive organic growth for Europe\'s leading car rental brand through integrated SEO and Digital PR.',
-    image: 'https://rise-atseven.transforms.svdcdn.com/production/images/IMG_5087.JPG?w=900&h=600&q=90&auto=format&fit=crop&dm=1753791050&s=6f9c4e427ec3afc2794ccb92f006af06',
-    color: '#B2F6E3',
+    name: 'SIXT',
+    years: '2023-2025',
+    tag: 'Car rental',
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&h=900&q=85&auto=format&fit=crop',
   },
   {
-    id: 2,
-    client: 'Dojo',
-    category: 'Content + SEO',
-    result: '+180% keyword rankings',
-    description: 'Transformed Dojo\'s content strategy to dominate payment solutions search results across the UK.',
-    image: 'https://rise-atseven.transforms.svdcdn.com/production/images/FOS25-3380.jpg?w=900&h=600&q=90&auto=format&fit=crop&dm=1750846499&s=8c1a07d60970e114e350dc38945f6bad',
-    color: '#CB7B3A',
+    name: 'Dojo - B2B',
+    years: '2021-2025',
+    tag: 'Card Machines',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=900&q=85&auto=format&fit=crop',
   },
   {
-    id: 3,
-    client: 'Magnet Trade',
-    category: 'Digital PR',
-    result: '850+ press links',
-    description: 'Award-winning Digital PR campaigns that earned national coverage and thousands of high-quality backlinks.',
-    image: 'https://rise-atseven.transforms.svdcdn.com/production/images/3-copy.jpg?w=900&h=600&q=90&auto=format&fit=crop&dm=1776098692&s=7e87c1bafadd66b362a16649188663d6',
-    color: '#60DCFB',
+    name: 'Magnet Trade - B2B',
+    years: '2023-2024',
+    tag: 'Kitchens',
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=900&q=85&auto=format&fit=crop',
   },
   {
-    id: 4,
-    client: 'PrettyLittleThing',
-    category: 'Influencer + Social',
-    result: '42M+ reach',
-    description: 'Integrated influencer and organic social strategy that built an unstoppable fashion community.',
-    image: 'https://rise-atseven.transforms.svdcdn.com/production/images/0B5A7827.jpg?w=900&h=600&q=90&auto=format&fit=crop&dm=1777514348&s=161c413ad12ef90895fad390f5521371',
-    color: '#D8C4FD',
+    name: 'Lebara',
+    years: '2023-2025',
+    tag: 'Esims',
+    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&h=900&q=85&auto=format&fit=crop',
+  },
+  {
+    name: 'JD Sports',
+    years: '2022-2025',
+    tag: 'Trainers',
+    image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1200&h=900&q=85&auto=format&fit=crop',
   },
 ]
 
 export default function FeaturedWork() {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const active = projects[activeIndex]
+  const [active, setActive] = useState(0)
+  const [visible, setVisible] = useState(false)
+  const sectionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true) },
+      { threshold: 0.08 }
+    )
+    if (sectionRef.current) observer.observe(sectionRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActive(p => (p + 1) % projects.length)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
-    <section className="bg-white py-16 lg:py-24 px-4 md:px-6 lg:px-8">
-      <div className="max-w-[1400px] mx-auto">
+    <section ref={sectionRef} className="bg-site-bg px-5 lg:px-10 py-4 lg:py-8">
+      <div className="max-w-[1440px] mx-auto">
+        <div
+          className="bg-dark rounded-[24px] lg:rounded-[32px] overflow-hidden"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(40px)',
+            transitionProperty: 'opacity, transform',
+            transitionDuration: '800ms',
+            transitionTimingFunction: 'cubic-bezier(0.4,0,0.2,1)',
+          }}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px] lg:min-h-[650px]">
+            <div className="p-8 lg:p-12 xl:p-16 flex flex-col justify-between">
+              <p className="text-white/50 text-sm font-medium mb-8 italic">Featured Work</p>
+              <div className="flex-1 flex flex-col justify-center gap-1">
+                {projects.map((project, i) => (
+                  <button
+                    key={project.name}
+                    onClick={() => setActive(i)}
+                    onMouseEnter={() => setActive(i)}
+                    className="text-left group"
+                  >
+                    <div className="flex items-baseline gap-3 py-1">
+                      <span
+                        className={`font-bold tracking-tight leading-none transition-colors duration-300 ${
+                          i === active ? 'text-white' : 'text-white/20'
+                        }`}
+                        style={{ fontSize: 'clamp(2rem, 4.5vw, 4rem)' }}
+                      >
+                        {project.name}
+                      </span>
+                      <span
+                        className={`text-xs font-medium transition-opacity duration-300 ${
+                          i === active ? 'text-white/50 opacity-100' : 'opacity-0'
+                        }`}
+                      >
+                        [{project.years}]
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-8">
+                {projects.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      i === active ? 'bg-white w-6' : 'bg-white/20 w-2'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 lg:mb-16">
-          <div>
-            <p className="text-grey-300 text-sm font-medium tracking-widest uppercase mb-3">Featured work</p>
-            <h2 className="text-grey-900 text-4xl lg:text-5xl xl:text-6xl font-medium tracking-tight leading-tight">
-              Results that<br />
-              <span className="text-grey-300">speak volumes</span>
-            </h2>
-          </div>
-          <a
-            href="/work"
-            className="group self-start sm:self-auto inline-flex items-center gap-2 border border-grey-200 text-grey-900 font-medium px-5 py-2.5 rounded-full hover:rounded-xl hover:border-grey-900 transition-all duration-300 text-sm whitespace-nowrap"
-          >
-            All case studies
-            <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10" />
-            </svg>
-          </a>
-        </div>
-
-        {/* Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
-          
-          {/* Left: Project list */}
-          <div className="lg:col-span-5 flex flex-col gap-2">
-            {projects.map((project, i) => (
-              <button
-                key={project.id}
-                onClick={() => setActiveIndex(i)}
-                className={`group text-left p-5 lg:p-6 rounded-2xl border transition-all duration-300 ${
-                  i === activeIndex
-                    ? 'bg-grey-900 border-grey-900'
-                    : 'bg-white border-grey-100 hover:border-grey-200 hover:bg-grey-100'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className={`text-xs font-medium uppercase tracking-widest mb-1.5 ${
-                      i === activeIndex ? 'text-mint' : 'text-grey-300'
-                    }`}>
-                      {project.category}
-                    </div>
-                    <div className={`text-xl lg:text-2xl font-semibold tracking-tight ${
-                      i === activeIndex ? 'text-white' : 'text-grey-900'
-                    }`}>
-                      {project.client}
-                    </div>
-                    <div className={`text-sm mt-1 font-medium ${
-                      i === activeIndex ? 'text-mint' : 'text-grey-300'
-                    }`}>
-                      {project.result}
-                    </div>
-                  </div>
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                    i === activeIndex
-                      ? 'border-mint bg-mint/10 text-mint'
-                      : 'border-grey-200 text-grey-300 group-hover:border-grey-400'
-                  }`}>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10" />
+            <div className="relative p-4 lg:p-6">
+              {projects.map((project, i) => (
+                <div
+                  key={project.name}
+                  className={`absolute inset-4 lg:inset-6 rounded-[16px] lg:rounded-[20px] overflow-hidden transition-all duration-700 ${
+                    i === active ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                  }`}
+                >
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-medium text-dark">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    {project.tag}
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                     </svg>
                   </div>
                 </div>
-
-                {/* Expanded description */}
-                <div className={`overflow-hidden transition-all duration-500 ${
-                  i === activeIndex ? 'max-h-24 mt-3 opacity-100' : 'max-h-0 opacity-0'
-                }`}>
-                  <p className="text-white/60 text-sm leading-relaxed">{project.description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Right: Image */}
-          <div className="lg:col-span-7">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] lg:aspect-[16/10] bg-grey-100">
-              {projects.map((project, i) => (
-                <img
-                  key={project.id}
-                  src={project.image}
-                  alt={project.client}
-                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ${
-                    i === activeIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-                  }`}
-                />
-              ))}
-              
-              {/* Overlay badge */}
-              <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
-                <div
-                  className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-grey-900 transition-colors duration-300"
-                  style={{ background: active.color }}
-                >
-                  {active.client}
-                </div>
-                <div className="rounded-full bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 text-xs font-medium text-white">
-                  {active.category}
-                </div>
-              </div>
-
-              {/* Result badge */}
-              <div className="absolute bottom-4 left-4 z-10">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-grey-900">
-                  <span className="w-2 h-2 rounded-full bg-mint" />
-                  {active.result}
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile dots */}
-            <div className="flex gap-2 justify-center mt-4 lg:hidden">
-              {projects.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveIndex(i)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    i === activeIndex ? 'bg-grey-900 w-6' : 'bg-grey-200'
-                  }`}
-                />
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="text-center mt-8 lg:mt-12">
+          <a
+            href="/work"
+            className="group inline-flex items-center gap-2 bg-white text-dark font-semibold text-sm px-7 py-3.5 rounded-full border border-grey-200 hover:rounded-lg hover:bg-dark hover:text-white hover:border-dark transition-all duration-300"
+          >
+            Explore Our Work
+            <svg className="w-3 h-3 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </a>
         </div>
       </div>
     </section>
