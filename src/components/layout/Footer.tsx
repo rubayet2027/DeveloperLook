@@ -1,5 +1,13 @@
 'use client'
 
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
+import { motion } from 'framer-motion'
+
+gsap.registerPlugin(ScrollTrigger)
+
 const footerLinks = [
   {
     items: ['Services', 'Work', 'About', 'Culture', 'Meet The Risers'],
@@ -21,16 +29,53 @@ const socials = [
   { label: '📷', href: '#' },
 ]
 
+const ease = [0.25, 0.1, 0, 1] as [number, number, number, number]
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+}
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
+}
+
 export default function Footer() {
+  const wordmarkRef = useRef<HTMLDivElement>(null)
+
+  // GSAP scroll-triggered wordmark reveal
+  useGSAP(() => {
+    const el = wordmarkRef.current
+    if (!el) return
+
+    gsap.from(el, {
+      yPercent: 30,
+      opacity: 0,
+      duration: 1,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 90%',
+        toggleActions: 'play none none none',
+      },
+    })
+  }, { scope: wordmarkRef })
+
   return (
     <footer className="bg-site-bg pt-8 lg:pt-12 px-5 lg:px-10">
       <div className="max-w-[1440px] mx-auto">
         <div className="bg-dark rounded-t-[24px] lg:rounded-t-[32px] overflow-hidden">
           {/* Top section: newsletter + nav */}
-          <div className="px-8 lg:px-14 xl:px-20 pt-12 lg:pt-16 pb-10 lg:pb-14">
+          <motion.div
+            className="px-8 lg:px-14 xl:px-20 pt-12 lg:pt-16 pb-10 lg:pb-14"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr_1fr] gap-10 lg:gap-8">
               {/* Newsletter */}
-              <div>
+              <motion.div variants={fadeUp}>
                 <h3 className="text-white text-lg lg:text-xl font-bold mb-6 leading-tight">
                   Stay updated with Rise news
                 </h3>
@@ -40,48 +85,56 @@ export default function Footer() {
                     placeholder="Your Email Address"
                     className="w-full bg-white/10 text-white placeholder:text-white/40 rounded-full px-5 py-3.5 text-sm font-medium border border-white/10 focus:outline-none focus:border-mint transition-colors"
                   />
-                  <button className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 bg-mint rounded-full flex items-center justify-center hover:bg-white transition-colors duration-200">
+                  <motion.button
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 bg-mint rounded-full flex items-center justify-center hover:bg-white transition-colors duration-200"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
                     <svg className="w-3.5 h-3.5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
                     </svg>
-                  </button>
+                  </motion.button>
                 </div>
                 {/* Social icons */}
                 <div className="flex gap-2">
                   {socials.map((s) => (
-                    <a
+                    <motion.a
                       key={s.label}
                       href={s.href}
                       className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/60 text-[10px] font-bold hover:border-white/40 hover:text-white transition-colors duration-200"
+                      whileHover={{ scale: 1.15, y: -2 }}
+                      whileTap={{ scale: 0.9 }}
                     >
                       {s.label}
                       <svg className="w-2 h-2 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M7 17L17 7M17 7H7M17 7v10"/>
                       </svg>
-                    </a>
+                    </motion.a>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Navigation columns */}
               {footerLinks.map((col, ci) => (
-                <div key={ci}>
+                <motion.div key={ci} variants={fadeUp}>
                   {col.items.map((item) => (
-                    <a
+                    <motion.a
                       key={item}
                       href="#"
                       className="block text-white text-sm lg:text-base font-semibold py-1.5 hover:text-mint transition-colors duration-200"
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
                     >
                       {item}
-                    </a>
+                    </motion.a>
                   ))}
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Giant wordmark */}
-          <div className="px-8 lg:px-14 xl:px-20 pb-6 lg:pb-8">
+          {/* Giant wordmark — GSAP scroll reveal */}
+          <div className="px-8 lg:px-14 xl:px-20 pb-6 lg:pb-8" ref={wordmarkRef}>
             <div className="flex items-end justify-between">
               <svg className="w-full h-auto max-h-[80px] lg:max-h-[120px] fill-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 21">
                 <path d="M91.3152 5.40061C91.3152 3.94241 92.5306 2.67359 93.9881 2.67359C95.7162 2.67359 96.797 3.83419 96.797 5.56225H99.7127C99.7127 2.1873 97.3096 0 93.9874 0C90.9371 0 88.3988 2.32257 88.3988 5.42766C88.3988 9.31596 90.883 10.2344 93.9874 11.4221C95.6627 12.07 97.2007 12.5563 97.2007 14.6895C97.2007 16.634 95.9867 18.0651 93.9874 18.0651C91.8813 18.0651 90.7477 16.3905 90.7477 14.446H87.832C87.832 18.0651 90.3426 20.7381 93.9874 20.7381C97.6323 20.7381 100.118 18.2816 100.118 14.6895C100.118 7.10161 91.3145 9.64061 91.3145 5.40061H91.3152Z"/>

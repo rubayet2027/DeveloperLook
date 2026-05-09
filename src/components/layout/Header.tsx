@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const navLinks = [
   { label: 'Services', href: '/services', hasDropdown: true },
@@ -24,6 +25,25 @@ const mobileLinks = [
   { label: 'Blog & Resources', href: '/blog', hasChevron: true },
   { label: 'Webinar', href: '/webinars' },
 ]
+
+const ease = [0.25, 0.1, 0, 1] as [number, number, number, number]
+
+// Framer Motion variants for mobile menu
+const overlayVariants = {
+  closed: { opacity: 0 },
+  open: { opacity: 1, transition: { duration: 0.4, ease } },
+  exit: { opacity: 0, transition: { duration: 0.3, ease } },
+}
+
+const menuContainerVariants = {
+  closed: {},
+  open: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } },
+}
+
+const menuItemVariants = {
+  closed: { opacity: 0, x: -30 },
+  open: { opacity: 1, x: 0, transition: { duration: 0.4, ease } },
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
@@ -50,13 +70,16 @@ export default function Header() {
       </div>
 
       {/* Main nav */}
-      <header
+      <motion.header
         className={`fixed left-0 right-0 z-40 transition-all duration-500 ${
           scrolled
             ? 'bg-site-bg/90 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.06)]'
             : 'bg-transparent'
         }`}
         style={{ top: scrolled ? 0 : 40 }}
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2, ease }}
       >
         <div className="mx-auto px-5 lg:px-10 max-w-[1440px]">
           <div className="flex items-center justify-between h-[60px] lg:h-[68px]">
@@ -101,19 +124,21 @@ export default function Header() {
 
             {/* Desktop CTA */}
             <div className="hidden xl:flex">
-              <a
+              <motion.a
                 href="/contact"
                 className={`group inline-flex items-center gap-2 font-semibold text-[13px] px-5 py-2.5 rounded-full border transition-all duration-300 hover:rounded-lg ${
                   scrolled
                     ? 'bg-dark text-white border-dark hover:bg-mint hover:text-dark hover:border-mint'
                     : 'bg-white text-dark border-white hover:bg-mint hover:border-mint'
                 }`}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
               >
                 Get In Touch
                 <svg className="w-3 h-3 group-hover:rotate-45 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
                 </svg>
-              </a>
+              </motion.a>
             </div>
 
             {/* Hamburger */}
@@ -130,47 +155,66 @@ export default function Header() {
             </button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Mobile menu overlay */}
-      <div
-        className={`fixed inset-0 z-30 bg-dark/95 backdrop-blur-xl flex flex-col transition-all duration-500 ${
-          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        style={{ paddingTop: '100px' }}
-      >
-        <nav className="flex flex-col px-6 sm:px-8 pt-4 flex-1 overflow-y-auto">
-          {mobileLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="group flex items-center justify-between py-4 text-white text-[1.8rem] sm:text-[2.2rem] font-bold tracking-tight"
-            >
-              {link.label}
-              {link.hasChevron ? (
-                <span className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </span>
-              ) : null}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="px-6 sm:px-8 pb-10 pt-4">
-          <a
-            href="/contact"
-            className="flex items-center justify-center gap-2 w-full bg-white text-dark font-bold text-base py-4 rounded-full hover:rounded-lg transition-all duration-300"
+      {/* Mobile menu overlay — AnimatePresence for mount/unmount */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="fixed inset-0 z-30 bg-dark/95 backdrop-blur-xl flex flex-col"
+            style={{ paddingTop: '100px' }}
+            variants={overlayVariants}
+            initial="closed"
+            animate="open"
+            exit="exit"
           >
-            Get In Touch
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
-            </svg>
-          </a>
-        </div>
-      </div>
+            <motion.nav
+              className="flex flex-col px-6 sm:px-8 pt-4 flex-1 overflow-y-auto"
+              variants={menuContainerVariants}
+              initial="closed"
+              animate="open"
+            >
+              {mobileLinks.map((link) => (
+                <motion.div key={link.href} variants={menuItemVariants}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="group flex items-center justify-between py-4 text-white text-[1.8rem] sm:text-[2.2rem] font-bold tracking-tight"
+                  >
+                    {link.label}
+                    {link.hasChevron ? (
+                      <span className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center">
+                        <svg className="w-3.5 h-3.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
+                        </svg>
+                      </span>
+                    ) : null}
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.nav>
+
+            <motion.div
+              className="px-6 sm:px-8 pb-10 pt-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4, ease }}
+            >
+              <motion.a
+                href="/contact"
+                className="flex items-center justify-center gap-2 w-full bg-white text-dark font-bold text-base py-4 rounded-full hover:rounded-lg transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Get In Touch
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 17L17 7M17 7H7M17 7v10"/>
+                </svg>
+              </motion.a>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
